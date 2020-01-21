@@ -1,4 +1,6 @@
 /* A replication of the workings of the Sony BKM-129X card
+ * (2020) Martin Hejnfelt (martin@hejnfelt.com)
+ *
  * Tested on an Arduino Nano v3.0 on a PVM-9L2
  * 
  * Working (on my monitor :P):
@@ -8,6 +10,8 @@
  * Serial number
  * 
  * Expect bugs...
+ *
+ * Copy if you wanna!
  */
 
 #include <SPI.h>
