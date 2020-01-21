@@ -17,7 +17,9 @@ enum State {
   GET_MEM_ADDR      = 0x01,
   GET_MEM_ADDR2     = 0x02,
   PROCESS_MEM_REQ   = 0x03,
-  PROCESS_MEM2_REQ  = 0x04
+  PROCESS_MEM2_REQ  = 0x04,
+  SET_STATE         = 0x05,
+  PROCESS_SET_STATE = 0x06
 };
 
 bool process = false;
@@ -111,6 +113,37 @@ void setup() {
   Serial.print('\n');
 }
 
+void checkState(byte c) {
+  switch(c) {
+    case READ_MEM:
+      currentState = GET_MEM_ADDR;
+    break;
+    case READ_MEM2:
+      currentState = GET_MEM_ADDR2;
+    break;
+    case 0x0:
+      currentState = SET_STATE;
+    break;
+  }
+}
+void select_ext_sync_on() {
+      Serial.print("S1\n");
+      digitalWrite(EXT_SYNC_OE_n,0);
+      digitalWrite(BX_OE_n,0);
+}
+
+void select_ext_sync_off() {
+      Serial.print("S0\n");
+      digitalWrite(EXT_SYNC_OE_n,1);
+      digitalWrite(BX_OE_n,0);
+}
+
+void deselect() {
+      Serial.print("D\n");
+      digitalWrite(EXT_SYNC_OE_n,1);
+      digitalWrite(BX_OE_n,1);
+}
+
 // Interrupt routine
 ISR (SPI_STC_vect)
 {
@@ -118,45 +151,32 @@ ISR (SPI_STC_vect)
 //  Serial.print(c,HEX);
   switch(currentState) {
     case IDLE:
-      switch(c) {
-        case READ_MEM:
-          SPDR = c;
-          currentState = GET_MEM_ADDR;
-        break;
-        case READ_MEM2:
-          SPDR = c;
-          currentState = GET_MEM_ADDR2;
-        break;
-        case DESELECT:
-        case SEL_EXT_ON:
-        case SEL_EXT_OFF:
-          SPDR = c;
-          currentState = c;
-        break;
+      checkState(c);
+    break;
+    case SET_STATE:
+      if(SPDR == 0x0) {
+        currentState = PROCESS_SET_STATE;
       }
     break;
-    case DESELECT:
-      digitalWrite(EXT_SYNC_OE_n,1);
-      digitalWrite(BX_OE_n,1);
-      currentState = IDLE;
-    break;
-    case SEL_EXT_ON:
-      digitalWrite(EXT_SYNC_OE_n,0);
-      digitalWrite(BX_OE_n,0);
-      currentState = IDLE;
-    break;
-    case SEL_EXT_OFF:
-      digitalWrite(EXT_SYNC_OE_n,1);
-      digitalWrite(BX_OE_n,0);
+    case PROCESS_SET_STATE:
+      switch(c) {
+          case DESELECT:
+            deselect();
+          break;
+          case SEL_EXT_ON:
+            select_ext_sync_on();
+          break;
+          case SEL_EXT_OFF:
+            select_ext_sync_off();
+          break;
+      }
       currentState = IDLE;
     break;
     case GET_MEM_ADDR:
-      //readAddr = c;
       SPDR = mem[c];
       currentState = PROCESS_MEM_REQ;
     break;
     case GET_MEM_ADDR2:
-      //readAddr = c;
       SPDR = mem2[c];
       currentState = PROCESS_MEM2_REQ;
     break;
@@ -184,12 +204,14 @@ void loop() {
     switch(currentState) {
       case PROCESS_MEM_REQ:
         while(digitalRead(SLOT_ID) != 1) delay(1);
-//        SPDR = mem[readAddr];
         req();
       break;
       case PROCESS_MEM2_REQ:
         while(digitalRead(SLOT_ID) != 1) delay(1);
-  //      SPDR = mem2[readAddr];
+        req();
+      break;
+      case PROCESS_SET_STATE:
+        while(digitalRead(SLOT_ID) != 1) delay(1);
         req();
       break;
     }
