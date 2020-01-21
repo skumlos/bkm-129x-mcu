@@ -5,9 +5,7 @@
  * Initialization
  * Output enable/disable
  * Ext sync enable/disable
- * 
- * Unknown:
- * Serial number creation
+ * Serial number
  * 
  * Expect bugs...
  */
@@ -17,6 +15,9 @@
 #define BX_OE_n (PD6) // Output enable (active low)
 #define EXT_SYNC_OE_n (PD7) // External sync enable (active low)
 #define SLOT_ID (PD2) // The hacker gpio that does some handshake magic and shit...
+
+// Serial 5001337 (make up your own), ascii numbers 0x30-0x39 although letters seem to work, but not asciitable
+byte serial[7] = { 0x35, 0x30, 0x30, 0x31, 0x33, 0x33, 0x37 };
 
 enum Command {
   READ_MEM    = 0x9E,
@@ -47,13 +48,13 @@ byte mem2[256];
 // Like read during powerup
 void init_mem() {
   mem[0x00]=0xC8;
-  mem[0x02]=0x32;
-  mem[0x03]=0x30;
-  mem[0x04]=0x30;
-  mem[0x05]=0x31;
-  mem[0x06]=0x39;
-  mem[0x07]=0x31;
-  mem[0x08]=0x31;
+  mem[0x02]=serial[0];
+  mem[0x03]=serial[1];
+  mem[0x04]=serial[2];
+  mem[0x05]=serial[3];
+  mem[0x06]=serial[4];
+  mem[0x07]=serial[5];
+  mem[0x08]=serial[6];
   mem[0x0E]=0xFF;
   mem[0x0F]=0xFF;
   mem[0x10]=0xFF;
