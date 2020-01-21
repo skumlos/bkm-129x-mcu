@@ -8,8 +8,9 @@ enum Command {
   READ_MEM    = 0x9E,
   READ_MEM2   = 0xBE,
   SEL_EXT_ON  = 0xF4,
+  DESELECT2   = 0xF5,
   SEL_EXT_OFF = 0xF6,
-  DESELECT    = 0xF7  
+  DESELECT    = 0xF7,
 };
 
 enum State {
@@ -144,11 +145,16 @@ void deselect() {
       digitalWrite(BX_OE_n,1);
 }
 
+void deselect2() {
+      Serial.print("D2\n");
+      digitalWrite(EXT_SYNC_OE_n,1);
+      digitalWrite(BX_OE_n,1);
+}
+
 // Interrupt routine
 ISR (SPI_STC_vect)
 {
   byte c = SPDR;  // get byte sent from master
-//  Serial.print(c,HEX);
   switch(currentState) {
     case IDLE:
       checkState(c);
@@ -162,6 +168,9 @@ ISR (SPI_STC_vect)
       switch(c) {
           case DESELECT:
             deselect();
+          break;
+          case DESELECT2:
+            deselect2();
           break;
           case SEL_EXT_ON:
             select_ext_sync_on();
