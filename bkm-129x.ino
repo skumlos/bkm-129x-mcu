@@ -99,15 +99,16 @@ void init_mem() {
 };
 
 void setup() {
-  init_mem();
-  pinMode(SLOT_ID,INPUT);
   pinMode(BX_OE_n,OUTPUT);
   pinMode(EXT_SYNC_OE_n,OUTPUT);
-  pinMode(MISO, OUTPUT);
-  
   digitalWrite(BX_OE_n,1);
   digitalWrite(EXT_SYNC_OE_n,1);
 
+  init_mem();
+
+  pinMode(SLOT_ID,INPUT);
+  pinMode(MISO, OUTPUT);
+  
   delay(1000);
   
   // set SPI in slave mode
