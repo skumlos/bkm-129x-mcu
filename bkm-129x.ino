@@ -1,8 +1,22 @@
+/* A replication of the workings of the Sony BKM-129X card
+ * Tested on an Arduino Nano v3.0 on a PVM-9L2
+ * 
+ * Working (on my monitor :P):
+ * Initialization
+ * Output enable/disable
+ * Ext sync enable/disable
+ * 
+ * Unknown:
+ * Serial number creation
+ * 
+ * Expect bugs...
+ */
+
 #include <SPI.h>
 
 #define BX_OE_n (PD6) // Output enable (active low)
 #define EXT_SYNC_OE_n (PD7) // External sync enable (active low)
-#define SLOT_ID (PD2)
+#define SLOT_ID (PD2) // The hacker gpio that does some handshake magic and shit...
 
 enum Command {
   READ_MEM    = 0x9E,
@@ -110,8 +124,6 @@ void setup() {
   SPDR = 0x55;
 
   Serial.begin (115200);   // debugging
-  Serial.print(SPCR,BIN);
-  Serial.print('\n');
 }
 
 void checkState(byte c) {
