@@ -11,7 +11,7 @@
  * 
  * Expect bugs...
  *
- * Copy if you wanna!
+ * Copy if you wanna, but cool kids give credit where due...
  */
 
 #include <SPI.h>
@@ -41,9 +41,6 @@ enum State {
   SET_STATE         = 0x05,
   PROCESS_SET_STATE = 0x06
 };
-
-bool process = false;
-byte readAddr = 0x0;
 
 byte currentState = IDLE;
 byte mem[256];
@@ -113,8 +110,6 @@ void setup() {
 
   pinMode(SLOT_ID,INPUT);
   pinMode(MISO, OUTPUT);
-  
-  delay(1000);
   
   // set SPI in slave mode
   SPCR |= _BV(SPE);
