@@ -12,6 +12,10 @@
  * Expect bugs...
  *
  * Copy if you wanna, but cool kids give credit where due...
+ *
+ * Confirmed working on:
+ * PVM-9L2
+ * BVM-D14H5U
  */
 
 #include <SPI.h>
