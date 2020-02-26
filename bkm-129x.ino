@@ -127,8 +127,6 @@ void setup() {
 
   // initialize SPI Data Register
   SPDR = 0x55;
-
-  Serial.begin (115200);   // debugging
 }
 
 void checkState(byte c) {
@@ -145,25 +143,21 @@ void checkState(byte c) {
   }
 }
 void select_ext_sync_on() {
-      Serial.print("S1\n");
       digitalWrite(EXT_SYNC_OE_n,0);
       digitalWrite(BX_OE_n,0);
 }
 
 void select_ext_sync_off() {
-      Serial.print("S0\n");
       digitalWrite(EXT_SYNC_OE_n,1);
       digitalWrite(BX_OE_n,0);
 }
 
 void deselect() {
-      Serial.print("D\n");
       digitalWrite(EXT_SYNC_OE_n,1);
       digitalWrite(BX_OE_n,1);
 }
 
 void deselect2() {
-      Serial.print("D2\n");
       digitalWrite(EXT_SYNC_OE_n,1);
       digitalWrite(BX_OE_n,1);
 }
@@ -220,26 +214,38 @@ ISR (SPI_STC_vect)
 void req() {
     pinMode(SLOT_ID,OUTPUT);
     digitalWrite(SLOT_ID,0);
-    while(currentState != IDLE) delay(1);
+    int wait_ms = 0;
+    while(currentState != IDLE) {
+      delay(5);
+      wait_ms += 5;
+      if(wait_ms >= 500) {
+        currentState = IDLE;
+        break;
+      }
+    }
     digitalWrite(SLOT_ID,1);
     pinMode(SLOT_ID,INPUT);
 }
 
 void loop() {
   if(currentState != IDLE) {
+    int wait_ms = 0;
+    bool check = true;
     switch(currentState) {
       case PROCESS_MEM_REQ:
-        while(digitalRead(SLOT_ID) != 1) delay(1);
-        req();
-      break;
       case PROCESS_MEM2_REQ:
-        while(digitalRead(SLOT_ID) != 1) delay(1);
-        req();
-      break;
       case PROCESS_SET_STATE:
-        while(digitalRead(SLOT_ID) != 1) delay(1);
-        req();
-      break;
+        while(digitalRead(SLOT_ID) != 1) {
+          delay(5);
+          wait_ms += 5;
+          if(wait_ms >= 500) {
+            check = false;
+            currentState = IDLE;
+            break;
+          }
+        }
+        if(check) req();
+        break;
     }
   }
 }
