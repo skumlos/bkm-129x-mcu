@@ -12,13 +12,19 @@
  * Expect bugs...
  *
  * Copy if you wanna, but cool kids give credit where due...
- *
+ * 
+ * I did not write digitalWriteFast.h it was found here: 
+ * https://github.com/NicksonYap/digitalWriteFast
+ * I could find no apparent license so if the authors does
+ * not wish me to include it, please email me...
+ * 
  * Confirmed working on:
  * PVM-9L2
  * BVM-D14H5U
  */
 
 #include <SPI.h>
+#include "digitalWriteFast.h"
 
 #define BX_OE_n (PD6) // Output enable (active low)
 #define EXT_SYNC_OE_n (PD7) // External sync enable (active low)
@@ -47,6 +53,7 @@ enum State {
 };
 
 byte currentState = IDLE;
+bool activeSlotID = false;
 byte mem[256];
 byte mem2[256];
 
@@ -105,15 +112,15 @@ void init_mem() {
 };
 
 void setup() {
-  pinMode(BX_OE_n,OUTPUT);
-  pinMode(EXT_SYNC_OE_n,OUTPUT);
-  digitalWrite(BX_OE_n,1);
-  digitalWrite(EXT_SYNC_OE_n,1);
+  pinModeFast(BX_OE_n,OUTPUT);
+  pinModeFast(EXT_SYNC_OE_n,OUTPUT);
+  digitalWriteFast(BX_OE_n,1);
+  digitalWriteFast(EXT_SYNC_OE_n,1);
 
   init_mem();
 
-  pinMode(SLOT_ID,INPUT);
-  pinMode(MISO, OUTPUT);
+  pinModeFast(SLOT_ID,INPUT);
+  pinModeFast(MISO, OUTPUT);
   
   // set SPI in slave mode
   SPCR |= _BV(SPE);
@@ -142,24 +149,25 @@ void checkState(byte c) {
     break;
   }
 }
+
 void select_ext_sync_on() {
-      digitalWrite(EXT_SYNC_OE_n,0);
-      digitalWrite(BX_OE_n,0);
+      digitalWriteFast(EXT_SYNC_OE_n,0);
+      digitalWriteFast(BX_OE_n,0);
 }
 
 void select_ext_sync_off() {
-      digitalWrite(EXT_SYNC_OE_n,1);
-      digitalWrite(BX_OE_n,0);
+      digitalWriteFast(EXT_SYNC_OE_n,1);
+      digitalWriteFast(BX_OE_n,0);
 }
 
 void deselect() {
-      digitalWrite(EXT_SYNC_OE_n,1);
-      digitalWrite(BX_OE_n,1);
+      digitalWriteFast(EXT_SYNC_OE_n,1);
+      digitalWriteFast(BX_OE_n,1);
 }
 
 void deselect2() {
-      digitalWrite(EXT_SYNC_OE_n,1);
-      digitalWrite(BX_OE_n,1);
+      digitalWriteFast(EXT_SYNC_OE_n,1);
+      digitalWriteFast(BX_OE_n,1);
 }
 
 // Interrupt routine
@@ -211,24 +219,22 @@ ISR (SPI_STC_vect)
   }
 }
 
-void req() {
-    pinMode(SLOT_ID,OUTPUT);
-    digitalWrite(SLOT_ID,0);
-    while(currentState != IDLE)
-    delayMicroseconds(65);
-    digitalWrite(SLOT_ID,1);
-    pinMode(SLOT_ID,INPUT);
-}
-
 void loop() {
   if(currentState != IDLE) {
     switch(currentState) {
       case PROCESS_MEM_REQ:
       case PROCESS_MEM2_REQ:
       case PROCESS_SET_STATE:
-        if(0 == digitalRead(SLOT_ID))
-          req();
+        if(0 == digitalReadFast(SLOT_ID)) {
+          pinModeFast(SLOT_ID,OUTPUT);
+          digitalWriteFast(SLOT_ID,0);
+          activeSlotID = true;
+        }
         break;
     }
+  } else if(activeSlotID) {
+    digitalWriteFast(SLOT_ID,1);
+    pinModeFast(SLOT_ID,INPUT);
+    activeSlotID = false;
   }
 }
