@@ -171,7 +171,7 @@ ISR (SPI_STC_vect)
       checkState(c);
     break;
     case SET_STATE:
-      if(SPDR == 0x0) {
+      if(0x0 == c) {
         currentState = PROCESS_SET_STATE;
       }
     break;
@@ -214,37 +214,20 @@ ISR (SPI_STC_vect)
 void req() {
     pinMode(SLOT_ID,OUTPUT);
     digitalWrite(SLOT_ID,0);
-    int wait_ms = 0;
-    while(currentState != IDLE) {
-      delay(5);
-      wait_ms += 5;
-      if(wait_ms >= 500) {
-        currentState = IDLE;
-        break;
-      }
-    }
+    while(currentState != IDLE)
+    delayMicroseconds(65);
     digitalWrite(SLOT_ID,1);
     pinMode(SLOT_ID,INPUT);
 }
 
 void loop() {
   if(currentState != IDLE) {
-    int wait_ms = 0;
-    bool check = true;
     switch(currentState) {
       case PROCESS_MEM_REQ:
       case PROCESS_MEM2_REQ:
       case PROCESS_SET_STATE:
-        while(digitalRead(SLOT_ID) != 1) {
-          delay(5);
-          wait_ms += 5;
-          if(wait_ms >= 500) {
-            check = false;
-            currentState = IDLE;
-            break;
-          }
-        }
-        if(check) req();
+        if(0 == digitalRead(SLOT_ID))
+          req();
         break;
     }
   }
