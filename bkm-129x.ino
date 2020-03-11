@@ -1,26 +1,8 @@
 /* A replication of the workings of the Sony BKM-129X card
  * (2020) Martin Hejnfelt (martin@hejnfelt.com)
  *
- * Tested on an Arduino Nano v3.0 on a PVM-9L2
- * 
- * Working (on my monitor :P):
- * Initialization
- * Output enable/disable
- * Ext sync enable/disable
- * Serial number
- * 
- * Expect bugs...
+ * Version 1.0
  *
- * Copy if you wanna, but cool kids give credit where due...
- * 
- * I did not write digitalWriteFast.h it was found here: 
- * https://github.com/NicksonYap/digitalWriteFast
- * I could find no apparent license so if the authors does
- * not wish me to include it, please email me...
- * 
- * Confirmed working on:
- * PVM-9L2
- * BVM-D14H5U
  */
 
 #include <SPI.h>
