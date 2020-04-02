@@ -25,4 +25,7 @@ https://github.com/skumlos/bkm-129x-simple
 Special credit goes out to Nick Carney and Bob from RetroRGB
 for rigorious testing and being patient with my software :)
 
-(2020) Martin Hejnfelt (martin@hejnfelt.com)
+Copyright © 2020 Martin Hejnfelt<martin@hejnfelt.com>
+This work is free. You can redistribute it and/or modify it under the
+terms of the Do What The Fuck You Want To Public License, Version 2,
+as published by Sam Hocevar. See the COPYING file for more details.
