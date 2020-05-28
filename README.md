@@ -12,9 +12,10 @@ not wish me to include it, please email me...
 
 Version 1.0 confirmed working on:
 PVM-9L2
+PVM-14L4
+PVM-20L5
 BVM-D14H5U
 BVM-D9H5U
-PVM-20L5
 
 "Working" as in, the monitors detect the card as a BKM-129X.
 The different monitors are more or less picky regarding the 
